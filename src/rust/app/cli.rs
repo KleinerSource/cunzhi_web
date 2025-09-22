@@ -8,6 +8,27 @@ use anyhow::Result;
 pub fn handle_cli_args() -> Result<()> {
     let args: Vec<String> = std::env::args().collect();
 
+    // 检查环境变量控制启动模式
+    if let Ok(mode) = std::env::var("CUNZHI_MODE") {
+        match mode.to_lowercase().as_str() {
+            "web" => {
+                // Web模式：从环境变量获取端口，默认3000
+                let port = std::env::var("CUNZHI_WEB_PORT")
+                    .unwrap_or_else(|_| "3000".to_string())
+                    .parse::<u16>()
+                    .unwrap_or(3000);
+                return handle_web_mode(port);
+            }
+            "desktop" => {
+                // 桌面模式：继续处理命令行参数
+            }
+            _ => {
+                eprintln!("无效的 CUNZHI_MODE 值: {}，支持的值: desktop, web", mode);
+                std::process::exit(1);
+            }
+        }
+    }
+
     match args.len() {
         // 无参数：正常启动GUI
         1 => {
@@ -68,15 +89,41 @@ fn handle_mcp_request(request_file: &str) -> Result<()> {
     Ok(())
 }
 
+/// 处理Web模式
+fn handle_web_mode(port: u16) -> Result<()> {
+    log_important!(info, "启动Web服务器模式，端口: {}", port);
+
+    // 创建异步运行时并启动Web服务器
+    if let Err(e) = tokio::runtime::Runtime::new()
+        .unwrap()
+        .block_on(crate::web::run_web_server(port))
+    {
+        log_important!(error, "Web服务器启动失败: {}", e);
+        std::process::exit(1);
+    }
+
+    Ok(())
+}
+
 /// 显示帮助信息
 fn print_help() {
     println!("寸止 - 智能代码审查工具");
     println!();
     println!("用法:");
-    println!("  等一下                    启动设置界面");
+    println!("  等一下                       启动桌面界面");
     println!("  等一下 --mcp-request <文件>  处理 MCP 请求");
-    println!("  等一下 --help             显示此帮助信息");
-    println!("  等一下 --version          显示版本信息");
+    println!("  等一下 --help               显示此帮助信息");
+    println!("  等一下 --version            显示版本信息");
+    println!();
+    println!("环境变量:");
+    println!("  CUNZHI_MODE=desktop          启动桌面界面 (默认)");
+    println!("  CUNZHI_MODE=web              启动Web界面");
+    println!("  CUNZHI_WEB_PORT=8080         指定Web端口 (默认3000)");
+    println!();
+    println!("示例:");
+    println!("  等一下                       # 桌面模式");
+    println!("  CUNZHI_MODE=web 等一下       # Web模式，端口3000");
+    println!("  CUNZHI_MODE=web CUNZHI_WEB_PORT=8080 等一下  # Web模式，端口8080");
 }
 
 /// 显示版本信息

@@ -6,6 +6,7 @@ import IntroTab from '../tabs/IntroTab.vue'
 import McpToolsTab from '../tabs/McpToolsTab.vue'
 import PromptsTab from '../tabs/PromptsTab.vue'
 import SettingsTab from '../tabs/SettingsTab.vue'
+import EnvironmentBanner from '../common/EnvironmentBanner.vue'
 
 interface Props {
   currentTheme: string
@@ -94,6 +95,9 @@ function testPopup() {
     <!-- 主要内容区域 -->
     <div class="flex-1 flex items-start justify-center p-6 pt-12">
       <div class="max-w-6xl w-full">
+        <!-- 环境信息横幅 -->
+        <EnvironmentBanner />
+
         <!-- 标题区域 -->
         <div class="text-center mb-8">
           <!-- 主标题 -->

@@ -137,6 +137,30 @@ pub fn load_standalone_config() -> Result<AppConfig> {
     }
 }
 
+/// 独立保存配置文件（用于Web服务器等独立进程）
+pub fn save_standalone_config(config: &AppConfig) -> Result<()> {
+    let config_path = get_standalone_config_path()?;
+
+    // 确保目录存在
+    if let Some(parent) = config_path.parent() {
+        fs::create_dir_all(parent)?;
+    }
+
+    let config_json = serde_json::to_string_pretty(config)?;
+
+    // 写入文件
+    fs::write(&config_path, config_json)?;
+
+    // 强制刷新文件系统缓存
+    if let Ok(file) = std::fs::OpenOptions::new().write(true).open(&config_path) {
+        let _ = file.sync_all();
+    }
+
+    log::debug!("配置已保存到: {:?}", config_path);
+
+    Ok(())
+}
+
 /// 独立加载Telegram配置（用于MCP模式下的配置检查）
 pub fn load_standalone_telegram_config() -> Result<super::settings::TelegramConfig> {
     let config = load_standalone_config()?;

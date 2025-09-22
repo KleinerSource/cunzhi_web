@@ -1,10 +1,11 @@
-import { invoke } from '@tauri-apps/api/core'
 import { computed, ref } from 'vue'
 import { applyThemeVariables, getTheme } from '../theme'
+import { useApi } from './useWebApi'
 
 export function useTheme() {
   // 不设置默认主题，等待从config.json加载
   const currentTheme = ref('')
+  const api = useApi()
 
   // 计算 Naive UI 主题
   const naiveTheme = computed(() => {
@@ -24,7 +25,7 @@ export function useTheme() {
   async function setTheme(theme: string) {
     try {
       // 先保存到后端
-      await invoke('set_theme', { theme })
+      await api.setTheme(theme)
       // 保存成功后应用前端主题
       applyTheme(theme)
     }
@@ -37,7 +38,7 @@ export function useTheme() {
   // 加载主题设置
   async function loadTheme() {
     try {
-      const theme = await invoke('get_theme')
+      const theme = await api.getTheme()
       // 确保主题值有效
       const validTheme = (theme === 'light' || theme === 'dark') ? theme : 'dark'
 
