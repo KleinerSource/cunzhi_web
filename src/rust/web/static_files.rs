@@ -26,7 +26,7 @@ pub async fn static_handler(uri: Uri) -> impl IntoResponse {
             Response::builder()
                 .status(StatusCode::OK)
                 .header(header::CONTENT_TYPE, mime.as_ref())
-                .body(content.data.into())
+                .body(axum::body::Body::from(content.data))
                 .unwrap()
         }
         None => {
@@ -35,12 +35,12 @@ pub async fn static_handler(uri: Uri) -> impl IntoResponse {
                 Response::builder()
                     .status(StatusCode::OK)
                     .header(header::CONTENT_TYPE, "text/html")
-                    .body(index.data.into())
+                    .body(axum::body::Body::from(index.data))
                     .unwrap()
             } else {
                 Response::builder()
                     .status(StatusCode::NOT_FOUND)
-                    .body("404 Not Found".into())
+                    .body(axum::body::Body::from("404 Not Found"))
                     .unwrap()
             }
         }

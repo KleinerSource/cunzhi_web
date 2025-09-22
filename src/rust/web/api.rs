@@ -1,19 +1,17 @@
 use axum::{
-    extract::{Query, State},
+    extract::State,
     http::StatusCode,
     response::Json,
     routing::{get, post},
     Router,
 };
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
 use serde_json::{json, Value};
-use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::Mutex;
 
-use crate::config::{AppConfig, AppState as TauriAppState, load_standalone_config, save_standalone_config};
-use crate::mcp::types::{PopupRequest, build_continue_response, build_send_response};
-use crate::mcp::handlers::create_tauri_popup;
+use crate::config::{AppConfig, load_standalone_config, save_standalone_config};
+use crate::mcp::types::{PopupRequest, build_continue_response};
 use crate::log_important;
 
 /// Web API 应用状态
@@ -246,12 +244,12 @@ async fn handle_mcp_popup(
     log_important!(info, "收到MCP弹窗请求: {}", request.message);
     
     // 返回一个默认的继续响应
-    let response = build_continue_response("继续");
+    let response = build_continue_response(None, "继续");
     Ok(Json(serde_json::to_value(response).unwrap_or_default()))
 }
 
 async fn send_mcp_response(
-    State(state): State<WebAppState>,
+    State(_state): State<WebAppState>,
     Json(response): Json<Value>,
 ) -> Json<Value> {
     log_important!(info, "收到MCP响应: {:?}", response);

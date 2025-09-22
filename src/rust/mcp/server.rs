@@ -63,6 +63,9 @@ impl ServerHandler for ZhiServer {
             server_info: Implementation {
                 name: "Zhi-mcp".to_string(),
                 version: env!("CARGO_PKG_VERSION").to_string(),
+                title: Some("寸止 MCP 服务器".to_string()),
+                website_url: Some("https://github.com/agassiz/cunzhi".to_string()),
+                icons: None,
             },
             instructions: Some("Zhi 智能代码审查工具，支持交互式对话和记忆管理".to_string()),
         }
@@ -110,8 +113,11 @@ impl ServerHandler for ZhiServer {
         if let serde_json::Value::Object(schema_map) = zhi_schema {
             tools.push(Tool {
                 name: Cow::Borrowed("zhi"),
+                title: Some(Cow::Borrowed("寸止")),
                 description: Some(Cow::Borrowed("智能代码审查交互工具，支持预定义选项、自由文本输入和图片上传")),
                 input_schema: Arc::new(schema_map),
+                output_schema: None,
+                icons: None,
                 annotations: None,
             });
         }
@@ -144,8 +150,11 @@ impl ServerHandler for ZhiServer {
             if let serde_json::Value::Object(schema_map) = ji_schema {
                 tools.push(Tool {
                     name: Cow::Borrowed("ji"),
+                    title: Some(Cow::Borrowed("记忆")),
                     description: Some(Cow::Borrowed("全局记忆管理工具，用于存储和管理重要的开发规范、用户偏好和最佳实践")),
                     input_schema: Arc::new(schema_map),
+                    output_schema: None,
+                    icons: None,
                     annotations: None,
                 });
             }
